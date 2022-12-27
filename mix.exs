@@ -7,7 +7,9 @@ defmodule Sidx.MixProject do
       version: "0.1.0",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
+      description: "Simple key-value store with subindex support for the BEAM implemented in pure Elixir",
       deps: deps(),
+      package: package(),
       test_coverage: [ignore_modules: [
         Sidx.Partition.State,
         Sidx.Table,
@@ -26,8 +28,19 @@ defmodule Sidx.MixProject do
   defp deps do
     [
       {:libring, "~> 1.6"},
-      {:benchee, "~> 1.1", only: :dev},
-      {:flow, "~> 1.2", only: :dev}
+      {:benchee, "~> 1.1", only: :dev, runtime: false},
+      {:flow, "~> 1.2", only: :dev, runtime: false},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+    ]
+  end
+
+  defp package do
+    [
+      name: :sidx,
+      files: ["lib", "mix.exs", "README*", "LICENSE*"],
+      maintainers: ["portasynthinca3"],
+      licenses: ["WTFPL"],
+      links: %{"GitHub" => "https://github.com/portasynthinca3/sidx"}
     ]
   end
 end
