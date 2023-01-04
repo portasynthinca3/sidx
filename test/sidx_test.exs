@@ -56,4 +56,13 @@ defmodule SidxTest do
     assert Sidx.select(table, [:a]) == {:ok, [{[], 1}]}
     Sidx.close!(table)
   end
+
+  test "partition re-opening" do
+    File.rm_rf("test_db")
+    table = Sidx.open!("test_db", [keys: 1, part_timeout: 100, part_initial: 1, compress: false, slot_size: 512])
+    assert Sidx.insert(table, [:a], 0) == :ok
+    :timer.sleep(150)
+    assert Sidx.insert(table, [:b], 0) == :ok
+    Sidx.close!(table)
+  end
 end

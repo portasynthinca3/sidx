@@ -56,6 +56,9 @@ defmodule Sidx.Partition do
     case start(table, num) do
       {:ok, pid} -> pid
       {:error, {:already_started, pid}} -> pid
+      {:error, :already_present} ->
+        {:ok, pid} = Supervisor.restart_child(table.sup, {table.path, num})
+        pid
       {:error, err} ->
         Logger.error("sidx: failed to start partition: #{inspect err}", table: table.path, part: num)
     end
