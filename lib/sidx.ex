@@ -58,7 +58,7 @@ defmodule Sidx do
 
         # populate ring with initial partitions
         ring = Enum.reduce(0..opts[:part_initial] - 1, HashRing.new(),
-          fn idx, ring -> HashRing.add_node(ring, idx) end)
+          fn idx, ring -> HashRing.add_node(ring, idx, 1) end)
 
         # create header
         table = %Table{

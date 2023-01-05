@@ -1,8 +1,9 @@
+File.rm_rf("bench_db")
 table = Sidx.open!("bench_db", keys: 3)
 Agent.start_link(fn -> 0 end, name: :bench_ctr)
 
-safe = false
-if not safe, do: Sidx.insert(table, [0, 0, 0], 0) # force load partition
+safe = true
+unless safe, do: Sidx.insert(table, [0, 0, 0], 0) # force load partition
 
 Benchee.run(
   %{
@@ -20,7 +21,7 @@ Benchee.run(
     "select full" => fn -> Sidx.select(table, [1, 2, 3], safe) end,
     "select partial" => fn -> Sidx.select(table, [1, 2], safe) end,
 
-    "update" => fn -> Sidx.update(table, [1, 2, 3], fn {_, v} -> v + 1 end) end,
+    "update" => fn -> Sidx.update(table, [1, 2, 3], fn _, v -> v + 1 end) end,
     "select+insert" => fn ->
       {:ok, [{_, val}]} = Sidx.select(table, [1, 2, 3])
       Sidx.insert(table, [1, 2, 3], val + 1)
