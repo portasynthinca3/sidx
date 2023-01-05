@@ -61,6 +61,7 @@ defmodule Sidx.Partition do
         pid
       {:error, err} ->
         Logger.error("sidx: failed to start partition: #{inspect err}", table: table.path, part: num)
+        raise err
     end
   end
 

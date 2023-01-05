@@ -129,6 +129,30 @@ defmodule Sidx do
 
 
 
+  defp call_partition(table, primary, safe, term, retries \\ 3)
+  defp call_partition(table, primary, safe, term, retries) do
+    part = Partition.get_process(table, primary, safe)
+    if safe do
+      try do
+        :gen.call(part, :"$gen_call", term, 5000)
+      catch
+        :exit, reason ->
+          if retries == 0 do
+            exit({reason, {__MODULE__, :call_partition, [table, primary, safe, term, retries]}})
+          else
+            Logger.debug("sidx: call_partition: retrying")
+            call_partition(table, primary, safe, term, retries - 1)
+          end
+      else
+        {:ok, res} -> res
+      end
+    else
+      GenServer.call(part, term)
+    end
+  end
+
+
+
   @doc """
   Inserts one row into the table. Setting `safe` to `false` speeds up the
   execution, but is only actually safe if the time since the last operation is
@@ -143,8 +167,7 @@ defmodule Sidx do
 
     # determine the partition and ask it to write the row
     [primary | _] = keys
-    part = Partition.get_process(table, primary, safe)
-    GenServer.call(part, {:insert, keys, value})
+    call_partition(table, primary, safe, {:insert, keys, value})
   end
 
 
@@ -163,8 +186,7 @@ defmodule Sidx do
 
     # determine the partition and ask it to write the row
     [primary | _] = keys
-    part = Partition.get_process(table, primary, safe)
-    GenServer.call(part, {:select, keys})
+    call_partition(table, primary, safe, {:select, keys})
   end
 
 
@@ -183,7 +205,6 @@ defmodule Sidx do
 
     # determine the partition and ask it to update the rows
     [primary | _] = keys
-    part = Partition.get_process(table, primary, safe)
-    GenServer.call(part, {:update, keys, fun})
+    call_partition(table, primary, safe, {:update, keys, fun})
   end
 end
