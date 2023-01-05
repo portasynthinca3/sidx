@@ -4,7 +4,7 @@ defmodule Sidx.MixProject do
   def project do
     [
       app: :sidx,
-      version: "0.1.3",
+      version: "0.1.4",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       description: "Simple key-value store with subindex support for the BEAM implemented in pure Elixir",

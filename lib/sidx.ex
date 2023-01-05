@@ -76,6 +76,8 @@ defmodule Sidx do
         raise ArgumentError, "failed to read header: #{inspect error}"
     end
 
+    table = %{table | path: path}
+
     # start table supervisor with its unifier under the main supervisor
     {:ok, sup} = DynamicSupervisor.start_child(Sidx.TableSup, %{
       id: {:table, path},

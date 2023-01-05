@@ -57,6 +57,8 @@ defmodule Sidx.Unifier do
         raise ArgumentError, "failed to read unifier: #{inspect error}"
     end
 
+    state = %{state | path: table.path}
+
     # open data file
     {:ok, file} = :file.open(Path.join(table.path, "unified.sidx"), [:read, :write, :binary, :raw])
     state = %{state | file: file}
