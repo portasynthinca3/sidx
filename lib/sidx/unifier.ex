@@ -73,12 +73,6 @@ defmodule Sidx.Unifier do
     # close data file
     :ok = :file.close(state.file)
 
-    # write data
-    state = %{state | file: nil}
-    bin = :erlang.term_to_binary(state)
-    path = Path.join(state.path, "unifier.etf")
-    File.write!(path, bin)
-
     Logger.debug("sidx-unifier: stopped", table: state.path)
   end
 
@@ -128,8 +122,14 @@ defmodule Sidx.Unifier do
     # modify partition info
     state = %{state | partitions: Map.put(state.partitions, num, {byte_size(data), slots})}
 
+    # write data
+    :ok = :file.pwrite(state.file, to_write)
+    bin = :erlang.term_to_binary(%{state | file: nil})
+    path = Path.join(state.path, "unifier.etf")
+    File.write!(path, bin)
+
     # write data and return
-    {:reply, :file.pwrite(state.file, to_write), state}
+    {:reply, :ok, state}
   end
 
 
